@@ -19,7 +19,8 @@ class ItemAddPanel extends Component {
         });
     };
 
-    addNewItem = () => {
+    addNewItem = (e) => {
+        e.preventDefault();
         const { onAddItem } = this.props;
         onAddItem(this.state.newItem);
         this.clearInput();
@@ -27,7 +28,10 @@ class ItemAddPanel extends Component {
 
     render() {
         return (
-            <div className="item-add-panel input-group mb-3">
+            <form
+                className="item-add-panel input-group mb-3"
+                onSubmit={this.addNewItem}
+            >
                 <input
                     type="text"
                     className="form-control"
@@ -37,14 +41,13 @@ class ItemAddPanel extends Component {
                 />
                 <div className="input-group-append">
                     <button
-                        type="button"
+                        type="submit"
                         className="btn btn-md btn-outline-warning float-right"
-                        onClick={this.addNewItem}
                     >
                         <i className="fa fa-plus-circle" />
                     </button>
                 </div>
-            </div>
+            </form>
 
         );
     }
