@@ -10,43 +10,49 @@ import {
 
 import "./app.css";
 
+const createListItem = label => ({
+    id: _uniqueId("k-"),
+    important: false,
+    isDone: false,
+    label,
+});
+
 class App extends Component {
     state = {
-        todoDate: [
-            { label: "Drink Coffee", important: false, id: _uniqueId("prefix-"), isDone: false },
-            { label: "Make React App", important: true, id: _uniqueId("prefix-"), isDone: false },
-            { label: "Watch F1", important: false, id: _uniqueId("prefix-"), isDone: true },
+        todoData: [
+            createListItem("Drink Coffee"),
+            createListItem("Listen The Weekend album"),
+            createListItem("Make React App"),
         ]
     };
 
     onItemDelete = (id) => {
         this.setState(state => ({
-            todoDate: state.todoDate.filter(item => item.id !== id)
+            todoData: state.todoData.filter(item => item.id !== id)
         }));
     };
 
     onAddItem = (label) => {
         this.setState(state => ({
-            todoDate: [
-                ...state.todoDate,
-                { label, important: false, id: _uniqueId("prefix-"), isDone: false }
+            todoData: [
+                ...state.todoData,
+                createListItem(label),
             ]
         }));
     };
 
     onToogleFactory = (id, paramName) => {
-        this.setState(({ todoDate }) => {
-            const index = todoDate.findIndex(item => item.id === id);
-            const el = todoDate.find(item => item.id === id);
+        this.setState(({ todoData }) => {
+            const index = todoData.findIndex(item => item.id === id);
+            const oldItem = todoData[index];
 
             const newObj = [
-                ...todoDate.slice(0, index),
-                { ...el, [paramName]: !el[paramName] },
-                ...todoDate.slice(index + 1),
-
+                ...todoData.slice(0, index),
+                { ...oldItem, [paramName]: !oldItem[paramName] },
+                ...todoData.slice(index + 1)
             ];
 
-            return { todoDate: newObj };
+            return { todoData: newObj };
         });
     };
 
@@ -58,25 +64,21 @@ class App extends Component {
         this.onToogleFactory(id, "important");
     };
 
-    getToDoNumber = () => (
-        this.state.todoDate.filter(el => el.isDone === false).length
-    );
-
-    getDoneNumber = () => (
-        this.state.todoDate.filter(el => el.isDone === true).length
-    );
-
-
     render() {
+        const { todoData } = this.state;
+        const doneCount = todoData
+            .filter(el => el.isDone).length;
+        const toDoCount = todoData.length - doneCount;
+
         return (
             <div className="todo-app">
-                <AppHeader toDo={this.getToDoNumber()} done={this.getDoneNumber()} />
+                <AppHeader toDo={toDoCount} done={doneCount} />
                 <div className="top-panel d-flex">
                     <SearchPanel />
                     <ItemStatusFilter />
                 </div>
                 <TodoList
-                    todos={this.state.todoDate}
+                    todos={todoData}
                     onItemDelete={this.onItemDelete}
                     onToogleImportant={this.onToogleImportant}
                     onToogleDone={this.onToogleDone}
