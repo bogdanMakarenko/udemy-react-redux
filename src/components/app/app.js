@@ -23,7 +23,10 @@ class App extends Component {
             createListItem("Drink Coffee"),
             createListItem("Listen The Weekend album"),
             createListItem("Make React App"),
-        ]
+            createListItem("Make video from travels"),
+        ],
+        query: "",
+        filter: "all"
     };
 
     onItemDelete = (id) => {
@@ -64,21 +67,51 @@ class App extends Component {
         this.onToogleFactory(id, "important");
     };
 
+    search = (items, query) => {
+        if (query.length === 0) {
+            return items;
+        }
+        return items.filter(el => el.label.toLowerCase().includes(query.toLowerCase()));
+    };
+
+    onSearch = (query) => {
+        this.setState({
+            query
+        });
+    };
+
+    filterItemsByStatus = (items, filter) => {
+        switch (filter) {
+        case "todo":
+            return items.filter(el => !el.isDone);
+        case "done":
+            return items.filter(el => el.isDone);
+        default:
+            return items;
+        }
+    };
+
+    setFilter = (filter) => {
+        this.setState({ filter });
+    };
+
     render() {
-        const { todoData } = this.state;
+        const { todoData, query, filter } = this.state;
+
         const doneCount = todoData
             .filter(el => el.isDone).length;
         const toDoCount = todoData.length - doneCount;
+        const visibleItems = this.filterItemsByStatus(this.search(todoData, query), filter);
 
         return (
             <div className="todo-app">
                 <AppHeader toDo={toDoCount} done={doneCount} />
                 <div className="top-panel d-flex">
-                    <SearchPanel />
-                    <ItemStatusFilter />
+                    <SearchPanel onSearch={this.onSearch} />
+                    <ItemStatusFilter onItemsFilter={this.setFilter} />
                 </div>
                 <TodoList
-                    todos={todoData}
+                    todos={visibleItems}
                     onItemDelete={this.onItemDelete}
                     onToogleImportant={this.onToogleImportant}
                     onToogleDone={this.onToogleDone}
